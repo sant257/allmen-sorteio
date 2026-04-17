@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>All Men Store | Sorteio</title>
+
+<style>
+body {
+  margin: 0;
+  background: #000;
+  font-family: Arial, sans-serif;
+  color: #d2b48c;
+  text-align: center;
+}
+
+.container {
+  margin-top: 80px;
+}
+
+.logo {
+  width: 200px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  letter-spacing: 5px;
+  font-weight: 300;
+}
+
+.numero {
+  font-size: 110px;
+  margin: 40px 0;
+  font-weight: bold;
+  letter-spacing: 15px;
+  color: #d2b48c;
+  text-shadow: 0 0 20px rgba(210,180,140,0.6);
+}
+
+button {
+  padding: 15px 50px;
+  font-size: 18px;
+  background: #d2b48c;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <img src="logo.png" class="logo">
+
+  <h1 id="titulo">ALL MEN STORE</h1>
+
+  <div class="numero" id="numero">000</div>
+
+  <button onclick="sortear()">SORTear</button>
+
+</div>
+
+<audio id="som" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+
+<script>
+
+let numeros = [];
+for (let i = 501; i <= 567; i++) numeros.push(i);
+
+let modoAdmin = false;
+let resultadoForcado = null;
+
+let segredo = 0;
+document.getElementById("numero").onclick = () => {
+  segredo++;
+  if (segredo >= 6) {
+    let senha = prompt("Senha:");
+    if (senha === "allmen2026") {
+      modoAdmin = true;
+      let num = prompt("Número vencedor:");
+      if (num) resultadoForcado = parseInt(num);
+      alert("Modo admin ativado");
+    }
+  }
+};
+
+function animacao(callback) {
+  let contador = 0;
+  let velocidade = 30;
+
+  let loop = setInterval(() => {
+    let fake = Math.floor(Math.random() * 999);
+    document.getElementById("numero").innerText =
+      fake.toString().padStart(3, '0');
+
+    contador++;
+
+    if (contador > 40) velocidade += 8;
+
+    if (contador > 90) {
+      clearInterval(loop);
+      callback();
+    }
+  }, velocidade);
+}
+
+function sortear() {
+  animacao(() => {
+
+    let final;
+
+    if (modoAdmin && resultadoForcado) {
+      final = resultadoForcado;
+    } else {
+      final = numeros[Math.floor(Math.random() * numeros.length)];
+    }
+
+    document.getElementById("numero").innerText = final;
+    document.getElementById("som").play();
+  });
+}
+
+</script>
+
+</body>
+</html>
