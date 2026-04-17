@@ -12,7 +12,7 @@ body {
   overflow: hidden;
 }
 
-/* FUNDO INSTAGRAM FAKE */
+/* FUNDO INSTAGRAM REAL */
 .bg {
   position: fixed;
   width: 100%;
@@ -23,17 +23,17 @@ body {
 .feed {
   position: absolute;
   width: 100%;
-  animation: scrollFeed 20s linear infinite;
+  animation: scrollFeed 30s linear infinite;
 }
 
 .post {
   width: 100%;
   height: 300px;
-  margin-bottom: 10px;
   background-size: cover;
   background-position: center;
+  margin-bottom: 10px;
   border-radius: 10px;
-  filter: brightness(0.5);
+  filter: brightness(0.4);
 }
 
 @keyframes scrollFeed {
@@ -56,7 +56,6 @@ body {
   z-index: 10;
 }
 
-/* LOGO */
 .logo {
   width: 120px;
   margin-bottom: 20px;
@@ -67,10 +66,6 @@ body {
   height: 100px;
   overflow: hidden;
   margin: 20px 0;
-}
-
-.lista {
-  position: relative;
 }
 
 .item {
@@ -84,15 +79,12 @@ body {
 /* CONTAGEM */
 .countdown {
   font-size: 50px;
-  margin: 10px 0;
   display: none;
   animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
   50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
 }
 
 /* BOTÃO */
@@ -101,7 +93,6 @@ button {
   background: #c2a27c;
   border: none;
   border-radius: 6px;
-  font-size: 16px;
   cursor: pointer;
 }
 </style>
@@ -110,42 +101,55 @@ button {
 <body>
 
 <div class="bg">
-  <div class="feed">
-
-    <!-- SIMULAÇÃO DE POSTS -->
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?1')"></div>
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?2')"></div>
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?3')"></div>
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?4')"></div>
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?5')"></div>
-
-    <!-- DUPLICA PRA LOOP -->
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?1')"></div>
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?2')"></div>
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?3')"></div>
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?4')"></div>
-    <div class="post" style="background-image:url('https://picsum.photos/400/600?5')"></div>
-
-  </div>
+  <div class="feed" id="feed"></div>
 </div>
 
 <div class="modal">
-
   <img src="logo.png" class="logo">
-
   <div class="countdown" id="count">3</div>
 
   <div class="roleta">
-    <div class="lista" id="lista"></div>
+    <div id="lista"></div>
   </div>
 
   <button onclick="iniciar()">SORTEAR</button>
-
 </div>
 
 <audio id="somFinal" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
 
 <script>
+
+/* =========================
+   INSTAGRAM AUTOMÁTICO
+========================= */
+
+const username = "allmenstore.oficial";
+
+// API pública que converte Instagram → JSON
+const url = `https://api.rss2json.com/v1/api.json?rss_url=https://rsshub.app/instagram/user/${username}`;
+
+fetch(url)
+  .then(res => res.json())
+  .then(data => {
+    const feed = document.getElementById("feed");
+
+    data.items.slice(0, 10).forEach(item => {
+      const img = item.thumbnail;
+
+      let div = document.createElement("div");
+      div.className = "post";
+      div.style.backgroundImage = `url(${img})`;
+
+      feed.appendChild(div);
+    });
+
+    // duplica pra rolagem infinita
+    feed.innerHTML += feed.innerHTML;
+  });
+
+/* =========================
+   ROLETA
+========================= */
 
 let numeros = [];
 for (let i = 501; i <= 567; i++) numeros.push(i);
@@ -206,9 +210,7 @@ function sortear() {
   });
 
   let target = index * 100;
-
-  let extra = 3000;
-  let pos = target + extra;
+  let pos = target + 3000;
 
   let audioGiro = new Audio("https://www.soundjay.com/mechanical/sounds/slot-machine-1.mp3");
   audioGiro.play();
