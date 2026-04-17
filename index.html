@@ -7,50 +7,70 @@
 <style>
 body {
   margin: 0;
-  background: #000;
+  background: radial-gradient(circle at top, #111, #000);
   font-family: Arial, sans-serif;
   color: #d2b48c;
   text-align: center;
 }
 
 .container {
-  margin-top: 80px;
+  margin-top: 60px;
 }
 
 .logo {
-  width: 200px;
-  margin-bottom: 20px;
+  width: 180px;
+  margin-bottom: 10px;
 }
 
-h1 {
-  letter-spacing: 5px;
-  font-weight: 300;
+.live {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
+  animation: piscar 1s infinite;
+}
+
+@keyframes piscar {
+  0% {opacity: 1;}
+  50% {opacity: 0.3;}
+  100% {opacity: 1;}
+}
+
+.participantes {
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: #aaa;
 }
 
 .numero {
-  font-size: 110px;
+  font-size: 120px;
   margin: 40px 0;
   font-weight: bold;
   letter-spacing: 15px;
   color: #d2b48c;
-  text-shadow: 0 0 20px rgba(210,180,140,0.6);
+  text-shadow: 0 0 25px rgba(210,180,140,0.8);
+  transition: transform 0.2s;
+}
+
+.numero.animando {
+  transform: scale(1.1);
 }
 
 button {
-  padding: 15px 50px;
+  padding: 15px 60px;
   font-size: 18px;
-  background: #d2b48c;
+  background: linear-gradient(45deg, #d2b48c, #c19a6b);
   color: black;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  letter-spacing: 2px;
+  transition: 0.2s;
 }
 
-button:hover {
-  opacity: 0.8;
+button:active {
+  transform: scale(0.95);
 }
 </style>
-
 </head>
 
 <body>
@@ -59,11 +79,13 @@ button:hover {
 
   <img src="logo.png" class="logo">
 
-  <h1 id="titulo">ALL MEN STORE</h1>
+  <div class="live">🔴 AO VIVO</div>
+
+  <div class="participantes" id="pessoas">847 participantes</div>
 
   <div class="numero" id="numero">000</div>
 
-  <button onclick="sortear()">SORTEAR</button>
+  <button onclick="sortear()">SORTear</button>
 
 </div>
 
@@ -77,6 +99,13 @@ for (let i = 501; i <= 567; i++) numeros.push(i);
 let modoAdmin = false;
 let resultadoForcado = null;
 
+// contador fake dinâmico
+setInterval(() => {
+  let base = 800 + Math.floor(Math.random() * 100);
+  document.getElementById("pessoas").innerText = base + " participantes";
+}, 3000);
+
+// modo secreto
 let segredo = 0;
 document.getElementById("numero").onclick = () => {
   segredo++;
@@ -93,7 +122,9 @@ document.getElementById("numero").onclick = () => {
 
 function animacao(callback) {
   let contador = 0;
-  let velocidade = 30;
+  let velocidade = 20;
+
+  document.getElementById("numero").classList.add("animando");
 
   let loop = setInterval(() => {
     let fake = Math.floor(Math.random() * 999);
@@ -102,10 +133,12 @@ function animacao(callback) {
 
     contador++;
 
-    if (contador > 40) velocidade += 8;
+    if (contador > 40) velocidade += 5;
+    if (contador > 80) velocidade += 10;
 
-    if (contador > 90) {
+    if (contador > 120) {
       clearInterval(loop);
+      document.getElementById("numero").classList.remove("animando");
       callback();
     }
   }, velocidade);
