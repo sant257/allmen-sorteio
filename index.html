@@ -7,68 +7,57 @@
 <style>
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #111, #000);
+  background: radial-gradient(circle at center, #111, #000 70%);
   font-family: Arial, sans-serif;
-  color: #d2b48c;
+  color: #c2a27c;
   text-align: center;
 }
 
 .container {
-  margin-top: 60px;
+  margin-top: 80px;
 }
 
 .logo {
   width: 180px;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
 }
 
-.live {
-  color: red;
-  font-size: 14px;
-  margin-bottom: 10px;
-  animation: piscar 1s infinite;
+/* CAIXA DA ROLETA */
+.roleta {
+  height: 120px;
+  overflow: hidden;
+  position: relative;
+  margin: 40px auto;
+  width: 300px;
+  border-top: 2px solid rgba(194,162,124,0.3);
+  border-bottom: 2px solid rgba(194,162,124,0.3);
 }
 
-@keyframes piscar {
-  0% {opacity: 1;}
-  50% {opacity: 0.3;}
-  100% {opacity: 1;}
+/* LISTA DE NÚMEROS */
+.lista {
+  position: absolute;
+  width: 100%;
+  top: 0;
 }
 
-.participantes {
-  font-size: 14px;
-  margin-bottom: 20px;
-  color: #aaa;
-}
-
-.numero {
-  font-size: 120px;
-  margin: 40px 0;
-  font-weight: bold;
-  letter-spacing: 15px;
-  color: #d2b48c;
-  text-shadow: 0 0 25px rgba(210,180,140,0.8);
-  transition: transform 0.2s;
-}
-
-.numero.animando {
-  transform: scale(1.1);
+.item {
+  height: 120px;
+  font-size: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 10px;
+  text-shadow: 0 0 15px rgba(194,162,124,0.5);
 }
 
 button {
   padding: 15px 60px;
   font-size: 18px;
-  background: linear-gradient(45deg, #d2b48c, #c19a6b);
-  color: black;
+  background: linear-gradient(45deg, #c2a27c, #a88b67);
+  color: #000;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
-  letter-spacing: 2px;
-  transition: 0.2s;
-}
-
-button:active {
-  transform: scale(0.95);
 }
 </style>
 </head>
@@ -79,11 +68,9 @@ button:active {
 
   <img src="logo.png" class="logo">
 
-  <div class="live">🔴 AO VIVO</div>
-
-  <div class="participantes" id="pessoas">847 participantes</div>
-
-  <div class="numero" id="numero">000</div>
+  <div class="roleta">
+    <div class="lista" id="lista"></div>
+  </div>
 
   <button onclick="sortear()">SORTear</button>
 
@@ -93,71 +80,80 @@ button:active {
 
 <script>
 
+// números válidos
 let numeros = [];
 for (let i = 501; i <= 567; i++) numeros.push(i);
 
+// cria lista visual (repete para dar efeito de rolagem)
+let lista = document.getElementById("lista");
+
+function gerarLista() {
+  lista.innerHTML = "";
+  for (let i = 0; i < 30; i++) {
+    let num = numeros[Math.floor(Math.random() * numeros.length)];
+    let div = document.createElement("div");
+    div.className = "item";
+    div.innerText = num;
+    lista.appendChild(div);
+  }
+}
+
+gerarLista();
+
+// modo secreto
 let modoAdmin = false;
 let resultadoForcado = null;
 
-// contador fake dinâmico
-setInterval(() => {
-  let base = 800 + Math.floor(Math.random() * 100);
-  document.getElementById("pessoas").innerText = base + " participantes";
-}, 3000);
-
-// modo secreto
-let segredo = 0;
-document.getElementById("numero").onclick = () => {
-  segredo++;
-  if (segredo >= 6) {
-    let senha = prompt("Senha:");
-    if (senha === "allmen2026") {
-      modoAdmin = true;
-      let num = prompt("Número vencedor:");
-      if (num) resultadoForcado = parseInt(num);
-      alert("Modo admin ativado");
-    }
+document.body.addEventListener("dblclick", () => {
+  let senha = prompt("Senha:");
+  if (senha === "allmen2026") {
+    modoAdmin = true;
+    let num = prompt("Número vencedor:");
+    if (num) resultadoForcado = parseInt(num);
+    alert("Modo admin ativado");
   }
-};
-
-function animacao(callback) {
-  let contador = 0;
-  let velocidade = 20;
-
-  document.getElementById("numero").classList.add("animando");
-
-  let loop = setInterval(() => {
-    let fake = Math.floor(Math.random() * 999);
-    document.getElementById("numero").innerText =
-      fake.toString().padStart(3, '0');
-
-    contador++;
-
-    if (contador > 40) velocidade += 5;
-    if (contador > 80) velocidade += 10;
-
-    if (contador > 120) {
-      clearInterval(loop);
-      document.getElementById("numero").classList.remove("animando");
-      callback();
-    }
-  }, velocidade);
-}
+});
 
 function sortear() {
-  animacao(() => {
 
-    let final;
+  gerarLista();
 
-    if (modoAdmin && resultadoForcado) {
-      final = resultadoForcado;
-    } else {
-      final = numeros[Math.floor(Math.random() * numeros.length)];
+  let pos = 0;
+  let velocidade = 40;
+  let desacelerando = false;
+
+  let final;
+
+  if (modoAdmin && resultadoForcado) {
+    final = resultadoForcado;
+  } else {
+    final = numeros[Math.floor(Math.random() * numeros.length)];
+  }
+
+  let loop = setInterval(() => {
+
+    pos -= velocidade;
+    lista.style.top = pos + "px";
+
+    if (pos < -2000 && !desacelerando) {
+      desacelerando = true;
     }
 
-    document.getElementById("numero").innerText = final;
-    document.getElementById("som").play();
-  });
+    if (desacelerando) {
+      velocidade *= 0.95;
+    }
+
+    // parar exatamente no número final
+    let itens = document.querySelectorAll(".item");
+    itens.forEach((el, i) => {
+      if (parseInt(el.innerText) === final && velocidade < 2) {
+        clearInterval(loop);
+        lista.style.top = (-i * 120) + "px";
+        document.getElementById("som").play();
+      }
+    });
+
+  }, 30);
 }
 
 </script>
